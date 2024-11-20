@@ -1,0 +1,29 @@
+/* src/pages/CarConfigurator.css */
+.configurator-container {
+  display: flex;
+  justify-content: space-between;
+  height: 100vh;
+}
+
+.control-panel {
+  position: fixed;
+  top: 10%;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  color: white;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #e67e22;
+}
