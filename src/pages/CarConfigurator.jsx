@@ -1,30 +1,57 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, Environment} from "@react-three/drei";
-import { BoxHelper } from "three";
+import { OrbitControls, Environment } from "@react-three/drei";
 import CarModel from "../components/CarModel";
 import Navbar from "../components/Navbar";
 import "./CarConfigurator.css";
+import { gsap } from "gsap";
 
-const CameraController = ({ position, target }) => {
+// CameraController to control camera views
+const CameraController = ({ changeViewRef }) => {
   const { camera } = useThree();
-  
-  useEffect(() => {
-    camera.position.set(...position); // Set the camera position
-    camera.lookAt(...target); // Set the camera to look at the target
-  }, [position, target, camera]);
+
+  // Set the camera to view the left side of the car by default
+  camera.position.set(-10, 2, 0); // Left side view
+  camera.lookAt(0, 1, 0); // Look at the center of the car
+
+  changeViewRef.current = (position, target) => {
+    gsap.to(camera.position, {
+      x: position[0],
+      y: position[1],
+      z: position[2],
+      duration: 1,
+      ease: "power3.inOut",
+      onUpdate: () => camera.lookAt(...target),
+    });
+  };
 
   return null;
 };
 
+// CarConfigurator component for the 3D interface and color customization options
 const CarConfigurator = () => {
-  const [cameraPosition, setCameraPosition] = useState([0, 2, 5]); // Default position
-  const [cameraTarget, setCameraTarget] = useState([0, 1, 0]); // Default target
+  const [carColor, setCarColor] = useState("#ffffff"); // Default color (white)
+  const changeViewRef = useRef(null);
 
-  const changeView = (position, target) => {
-    setCameraPosition(position);
-    setCameraTarget(target);
+  // Handle button click for changing camera view
+  const handleButtonClick = (view, position, target) => {
+    const button = document.getElementById(view);
+
+    // Add a scale animation to the button for better UX
+    gsap.to(button, { scale: 0.9, duration: 0.1, yoyo: true, repeat: 1 });
+
+    // Call the changeView function in the ref
+    if (changeViewRef.current) {
+      changeViewRef.current(position, target);
+    }
   };
+
+  // Handle car color change
+  const handleColorChange = (event) => {
+    console.log("Selected color: ", event.target.value);  // Log the selected color
+    setCarColor(event.target.value);  // Update the color
+  };
+  
 
   return (
     <div style={{ position: "relative", height: "100vh", width: "100%" }}>
@@ -33,9 +60,6 @@ const CarConfigurator = () => {
       {/* 3D Canvas */}
       <div className="configurator-container" style={{ height: "100%" }}>
         <Canvas shadows gl={{ antialias: true }}>
-          {/* Add the CameraController */}
-          <CameraController position={cameraPosition} target={cameraTarget} />
-
           {/* Lighting */}
           <ambientLight intensity={0.5} />
           <directionalLight
@@ -47,23 +71,21 @@ const CarConfigurator = () => {
           />
           <pointLight position={[5, 5, 5]} intensity={1.5} />
 
+          {/* Camera Controller */}
+          <CameraController changeViewRef={changeViewRef} />
+
           {/* Car Model */}
-          <CarModel />
+          <CarModel carColor={carColor} />
 
           {/* Environment */}
           <Environment preset="sunset" background={false} />
-
-          {/* Optional Axes Helper for Debugging */}
-          <axesHelper args={[5]} />
-
-      
 
           {/* Orbit Controls */}
           <OrbitControls />
         </Canvas>
       </div>
 
-      {/* Buttons */}
+      {/* Buttons for controlling the camera view */}
       <div
         style={{
           position: "absolute",
@@ -75,24 +97,56 @@ const CarConfigurator = () => {
           borderRadius: "8px",
         }}
       >
+        {/* Front View Button */}
         <button
-          onClick={() => changeView([0, 1, 10], [0, 1, 0])} // Front View
+          id="front-view"
+          onClick={() => handleButtonClick("front-view", [0, 1, -10], [0, 1, 0])}
           style={{ marginRight: "10px" }}
         >
           Front
         </button>
+
+        {/* Rear View Button */}
         <button
-          onClick={() => changeView([0, 1, -10], [0, 1, 0])} // Rear View
+          id="rear-view"
+          onClick={() => handleButtonClick("rear-view", [0, 1, 10], [0, 1, 0])}
           style={{ marginRight: "10px" }}
         >
           Rear
         </button>
+
+        {/* Top View Button */}
         <button
-          onClick={() => changeView([0, 10, 0], [0, 1, 0])} // Top View
+          id="top-view"
+          onClick={() => handleButtonClick("top-view", [0, 10, 0], [0, 1, 0])}
           style={{ marginRight: "10px" }}
         >
           Top
         </button>
+      </div>
+
+      {/* Control Panel for Customization */}
+      <div
+        style={{
+          position: "absolute",
+          top: "100px",
+          left: "20px",
+          zIndex: 100,
+          background: "rgba(255, 255, 255, 0.8)",
+          padding: "10px",
+          borderRadius: "8px",
+        }}
+      >
+        {/* Color Picker */}
+        <div>
+          <h3>Choose Car Color</h3>
+          <input 
+            type="color" 
+            value={carColor} 
+            onChange={handleColorChange} 
+            style={{ width: "60px", height: "30px" }}
+          />
+        </div>
       </div>
     </div>
   );

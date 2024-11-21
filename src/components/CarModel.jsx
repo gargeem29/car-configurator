@@ -1,28 +1,24 @@
 import React, { useEffect, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
-import { TextureLoader, EquirectangularReflectionMapping, BoxHelper } from "three";
 
-const CarModel = () => {
-  const car = useGLTF("/car-modelnew.glb");
+const CarModel = ({ carColor }) => {
+  const { scene } = useGLTF("/car-modelnew.glb");  // Assuming car model path is correct
+  const carRef = useRef();
 
+  // This effect will run when the carColor prop changes
   useEffect(() => {
-    // Set up environment map for metallic materials
-    const loader = new TextureLoader();
-    const environmentMap = loader.load("/textures/environment.jpg"); // Example environment map
-    environmentMap.mapping = EquirectangularReflectionMapping;
-
-    car.scene.traverse((child) => {
+    console.log("Selected Car Color: ", carColor);  // Log the selected color
+    scene.traverse((child) => {
       if (child.isMesh && child.material) {
-        if (child.material.metalness) {
-          // Apply environment map to metallic materials
-          child.material.envMap = environmentMap;
-          child.material.needsUpdate = true;
+        if (child.name.includes("Body")) {
+          child.material.color.set(carColor);
         }
       }
     });
-  }, [car]);
+  }, [carColor, scene]);
+   // Re-run the effect when carColor changes
 
-  return <primitive object={car.scene} scale={[2,2,2]} />;
+  return <primitive ref={carRef} object={scene} scale={[0.5, 0.5, 0.5]} position={[0, 0, 0]} />;
 };
 
 export default CarModel;
