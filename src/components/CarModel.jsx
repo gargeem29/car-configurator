@@ -1,24 +1,39 @@
 import React, { useEffect, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 
-const CarModel = ({ carColor }) => {
-  const { scene } = useGLTF("/car-modelnew.glb");  // Assuming car model path is correct
+const CarModel = ({ carColor, windowColor, wheelColor }) => {
+  const { scene } = useGLTF("/car-modelnew.glb"); // Path to the GLTF file
   const carRef = useRef();
 
-  // This effect will run when the carColor prop changes
   useEffect(() => {
-    console.log("Selected Car Color: ", carColor);  // Log the selected color
-    scene.traverse((child) => {
-      if (child.isMesh && child.material) {
-        if (child.name.includes("Body")) {
+    if (scene) {
+      scene.traverse((child) => {
+        // Apply car body color
+        if (child.isMesh && child.material && child.name.toLowerCase().includes("body")) {
           child.material.color.set(carColor);
         }
-      }
-    });
-  }, [carColor, scene]);
-   // Re-run the effect when carColor changes
 
-  return <primitive ref={carRef} object={scene} scale={[0.5, 0.5, 0.5]} position={[0, 0, 0]} />;
+        // Apply window color
+        if (child.isMesh && child.material && child.name.toLowerCase().includes("window")) {
+          child.material.color.set(windowColor);
+        }
+
+        // Apply wheel color
+        if (child.isMesh && child.material && child.name.toLowerCase().includes("wheel")) {
+          child.material.color.set(wheelColor);
+        }
+      });
+    }
+  }, [carColor, windowColor, wheelColor, scene]); // Re-run the effect when any color or scene changes
+
+  return (
+    <primitive
+      ref={carRef}
+      object={scene}
+      scale={[0.5, 0.5, 0.5]} // Adjust the scale as needed
+      position={[0, 0, 0]} // Adjust the position as needed
+    />
+  );
 };
 
 export default CarModel;

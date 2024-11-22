@@ -30,7 +30,9 @@ const CameraController = ({ changeViewRef }) => {
 
 // CarConfigurator component for the 3D interface and color customization options
 const CarConfigurator = () => {
-  const [carColor, setCarColor] = useState("#ffffff"); // Default color (white)
+  const [carColor, setCarColor] = useState("#ffffff");
+  const [windowColor, setWindowColor] = useState("#ffffff");
+  const [wheelColor, setWheelColor] = useState("#ffffff");
   const changeViewRef = useRef(null);
 
   // Handle button click for changing camera view
@@ -47,14 +49,23 @@ const CarConfigurator = () => {
   };
 
   // Handle car color change
-  const handleColorChange = (event) => {
-    console.log("Selected color: ", event.target.value);  // Log the selected color
-    setCarColor(event.target.value);  // Update the color
+  const handleCarColorChange = (event) => {
+    setCarColor(event.target.value);
   };
-  
+
+  // Handle window color change
+  const handleWindowColorChange = (event) => {
+    setWindowColor(event.target.value);
+  };
+
+  // Handle wheel color change
+  const handleWheelColorChange = (event) => {
+    setWheelColor(event.target.value);
+  };
 
   return (
     <div style={{ position: "relative", height: "100vh", width: "100%" }}>
+      {/* Navbar */}
       <Navbar />
 
       {/* 3D Canvas */}
@@ -75,7 +86,7 @@ const CarConfigurator = () => {
           <CameraController changeViewRef={changeViewRef} />
 
           {/* Car Model */}
-          <CarModel carColor={carColor} />
+          <CarModel carColor={carColor} windowColor={windowColor} wheelColor={wheelColor} />
 
           {/* Environment */}
           <Environment preset="sunset" background={false} />
@@ -100,7 +111,7 @@ const CarConfigurator = () => {
         {/* Front View Button */}
         <button
           id="front-view"
-          onClick={() => handleButtonClick("front-view", [0, 1, -10], [0, 1, 0])}
+          onClick={() => handleButtonClick("front-view", [0, 1, 10], [0, 1, 0])}
           style={{ marginRight: "10px" }}
         >
           Front
@@ -109,7 +120,7 @@ const CarConfigurator = () => {
         {/* Rear View Button */}
         <button
           id="rear-view"
-          onClick={() => handleButtonClick("rear-view", [0, 1, 10], [0, 1, 0])}
+          onClick={() => handleButtonClick("rear-view", [0, 1, -10], [0, 1, 0])}
           style={{ marginRight: "10px" }}
         >
           Rear
@@ -137,13 +148,35 @@ const CarConfigurator = () => {
           borderRadius: "8px",
         }}
       >
-        {/* Color Picker */}
+        {/* Car Color Picker */}
         <div>
           <h3>Choose Car Color</h3>
-          <input 
-            type="color" 
-            value={carColor} 
-            onChange={handleColorChange} 
+          <input
+            type="color"
+            value={carColor}
+            onChange={handleCarColorChange}
+            style={{ width: "60px", height: "30px" }}
+          />
+        </div>
+
+        {/* Window Color Picker */}
+        <div style={{ marginTop: "10px" }}>
+          <h3>Choose Window Color</h3>
+          <input
+            type="color"
+            value={windowColor}
+            onChange={handleWindowColorChange}
+            style={{ width: "60px", height: "30px" }}
+          />
+        </div>
+
+        {/* Wheel Color Picker */}
+        <div style={{ marginTop: "10px" }}>
+          <h3>Choose Wheel Color</h3>
+          <input
+            type="color"
+            value={wheelColor}
+            onChange={handleWheelColorChange}
             style={{ width: "60px", height: "30px" }}
           />
         </div>
